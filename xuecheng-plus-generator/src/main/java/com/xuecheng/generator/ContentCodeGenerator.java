@@ -15,7 +15,6 @@ import java.util.Arrays;
  */
 public class ContentCodeGenerator {
 
-	// TODO 修改服务名以及数据表名
 	private static final String SERVICE_NAME = "content";
 
 	//数据库账号
@@ -34,7 +33,6 @@ public class ContentCodeGenerator {
 				"course_publish_pre"
 };
 
-	// TODO 默认生成entity，需要生成DTO修改此变量
 	// 一般情况下要先生成 DTO类 然后修改此参数再生成 PO 类。
 	private static final Boolean IS_DTO = false;
 
@@ -45,11 +43,11 @@ public class ContentCodeGenerator {
 		mpg.setTemplateEngine(new FreemarkerTemplateEngine());
 		// 全局配置
 		GlobalConfig gc = new GlobalConfig();
-		gc.setFileOverride(true);
+		gc.setFileOverride(true);	//设置覆盖原始生成的文件
 		//生成路径
 		gc.setOutputDir(System.getProperty("user.dir") + "/xuecheng-plus-generator/src/main/java");
-		gc.setAuthor("itcast");
-		gc.setOpen(false);
+		gc.setAuthor("zyb");
+		gc.setOpen(false);	//设置生成完毕后是否打开生成代码所在的目录
 		gc.setSwagger2(false);
 		gc.setServiceName("%sService");
         gc.setBaseResultMap(true);
@@ -89,7 +87,7 @@ public class ContentCodeGenerator {
 
 		// 策略配置
 		StrategyConfig strategy = new StrategyConfig();
-		strategy.setNaming(NamingStrategy.underline_to_camel);
+		strategy.setNaming(NamingStrategy.underline_to_camel);	//下划线转驼峰命名
 		strategy.setColumnNaming(NamingStrategy.underline_to_camel);
 		strategy.setEntityLombokModel(true);
 		strategy.setRestControllerStyle(true);

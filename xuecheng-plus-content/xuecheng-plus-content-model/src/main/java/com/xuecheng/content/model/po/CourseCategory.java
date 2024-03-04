@@ -16,6 +16,7 @@ import java.io.Serializable;
 @TableName("course_category")
 public class CourseCategory implements Serializable {
 
+    //serialVersionUID 控制类的版本，避免java自动生成，导致版本不兼容
     private static final long serialVersionUID = 1L;
 
     /**

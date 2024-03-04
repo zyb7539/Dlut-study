@@ -4,7 +4,7 @@ package com.xuecheng.base.exception;
 /**
  * @description 学成在线项目异常类
  */
-//TODO 为什么自定义异常
+
 public class XueChengPlusException extends RuntimeException {
 
    private String errMessage;
