@@ -19,5 +19,7 @@ public class SystemApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SystemApplication.class,args);
+
+        //TODO 如何将master分支的代码合并到main中
     }
 }

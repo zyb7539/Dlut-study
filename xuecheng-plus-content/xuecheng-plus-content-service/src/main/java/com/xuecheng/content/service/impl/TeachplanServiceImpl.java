@@ -1,20 +1,26 @@
 package com.xuecheng.content.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.content.mapper.TeachplanMapper;
+import com.xuecheng.content.mapper.TeachplanMediaMapper;
 import com.xuecheng.content.model.dto.SaveTeachplanDto;
 import com.xuecheng.content.model.dto.TeachPlanDto;
 import com.xuecheng.content.model.po.Teachplan;
+import com.xuecheng.content.model.po.TeachplanMedia;
 import com.xuecheng.content.service.TeachplanService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
 public class TeachplanServiceImpl implements TeachplanService {
     @Autowired
     TeachplanMapper teachplanMapper;
+    @Autowired
+    TeachplanMediaMapper teachplanMediaMapper;
 
     @Override
     public List<TeachPlanDto> findTeachplanTree(Long courseId) {
@@ -39,6 +45,77 @@ public class TeachplanServiceImpl implements TeachplanService {
             BeanUtils.copyProperties(saveTeachplanDto,teachplan);
             teachplanMapper.updateById(teachplan);
         }
+    }
+
+    @Transactional
+    @Override
+    public void deleteTeachplan(Long id) {
+        // 删除第一级别的大章节时要求大章节下边没有小章节时方可删除。
+        // 删除第二级别的小章节的同时需要将teachplan_media表关联的信息也删除。
+        //查询章节，判断是大章节还是小章节
+        Teachplan teachplan = teachplanMapper.selectById(id);
+        if(teachplan.getGrade().equals(1)){
+            //大章节
+            //判断是否存在小章节
+            LambdaQueryWrapper<Teachplan> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(Teachplan::getParentid,id).eq(Teachplan::getCourseId,teachplan.getCourseId());
+            Integer count = teachplanMapper.selectCount(queryWrapper);
+            if(count != 0){
+                XueChengPlusException.cast("课程计划信息还有子级信息，无法操作");
+            }else {
+                teachplanMapper.deleteById(id);
+            }
+        }else {
+            // 小章节
+            //找到关联的媒体信息
+            LambdaQueryWrapper<TeachplanMedia> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(TeachplanMedia::getTeachplanId,id).eq(TeachplanMedia::getCourseId,teachplan.getCourseId());
+            teachplanMapper.deleteById(id);
+            teachplanMediaMapper.delete(queryWrapper);
+
+        }
+    }
+    @Transactional
+    @Override
+    public void moveTeachplan(String move, Long id) {
+        //判断是上移还是下移
+        //找到所有同一大章节下的子章节
+        Teachplan teachplan = teachplanMapper.selectById(id);
+        LambdaQueryWrapper<Teachplan> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Teachplan::getParentid,teachplan.getParentid()).eq(Teachplan::getCourseId,teachplan.getCourseId())
+                .orderBy(true,true,Teachplan::getOrderby);
+        List<Teachplan> teachplanList = teachplanMapper.selectList(queryWrapper);
+        //找到移动章节所在的位置
+        int location = 0;
+        for (int i = 0; i < teachplanList.size(); i++) {
+            if(teachplanList.get(i).getId().equals(id)){
+                location = i;
+                break;
+            }
+        }
+        Teachplan teachplanOld = new Teachplan();
+        //交换orderId
+        if("moveup".equals(move)){
+            //上移
+            if(location == 0){
+               return;
+            }
+             teachplanOld = teachplanList.get(location - 1);
+
+        }else {
+            //下移
+
+            if(location ==teachplanList.size() - 1){
+                return;
+            }
+            teachplanOld = teachplanList.get(location + 1);
+
+        }
+        Integer swap = teachplanOld.getOrderby();
+        teachplanOld.setOrderby(teachplan.getOrderby());
+        teachplan.setOrderby(swap);
+        teachplanMapper.updateById(teachplanOld);
+        teachplanMapper.updateById(teachplan);
     }
 
     private Integer getTeachPlanCount(SaveTeachplanDto saveTeachplanDto) {
