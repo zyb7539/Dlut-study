@@ -1,6 +1,7 @@
+#微服务配置
 spring:
   application:
-    name: content-service    #服务名   content-api-dev.yml
+    name: system-service    #服务名   content-api-dev.yml
   cloud:
     nacos:
       server-addr: 192.168.101.65:8848
@@ -13,7 +14,6 @@ spring:
           - data-id: loggin-${spring.profiles.active}.yaml
             group: xuecheng-plus-common
             refresh: true
-
   profiles:
     active: dev
 #  datasource:
@@ -21,3 +21,4 @@ spring:
 #    url: jdbc:mysql://192.168.101.65:3306/xc402_content?serverTimezone=UTC&userUnicode=true&useSSL=false&
 #    username: root
 #    password: mysql
+# 日志文件配置路径

@@ -122,10 +122,10 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService {
         }
         CourseMarket courseMarket = courseMarketMapper.selectById(courseId);
         BeanUtils.copyProperties(courseBase,courseBaseInfoDto);
-        if(courseMarket == null){
-            XueChengPlusException.cast("该课程营销信息为空");
+        if(courseMarket != null){
+            BeanUtils.copyProperties(courseMarket,courseBaseInfoDto);
+            // XueChengPlusException.cast("该课程营销信息为空");
         }
-        BeanUtils.copyProperties(courseMarket,courseBaseInfoDto);
         //课程分类名称
         LambdaQueryWrapper<CourseCategory> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CourseCategory::getId,courseBaseInfoDto.getMt())
