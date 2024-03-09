@@ -12,6 +12,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MinioTest {
 
@@ -51,23 +55,63 @@ public class MinioTest {
     }
     @Test
     public void get(){
-        //TODO minio的服务器文件与本地文件的md5检验
         //上传文件
         try {
             GetObjectArgs getObjectArgs = GetObjectArgs.builder().bucket("testbucket").object("/test01/0001.png").build();
-            FilterInputStream re = minioClient.getObject(getObjectArgs);
+            InputStream re = minioClient.getObject(getObjectArgs);
 
-            //下载到本地
+            // 下载到本地
             FileOutputStream fileOutputStream = new FileOutputStream(new File("F:\\1.png"));
             IOUtils.copy(re,fileOutputStream);
 
             String s1 = DigestUtils.md5Hex(re);
             String s2 = DigestUtils.md5Hex(Files.newInputStream(new File("F:\\1.png").toPath()));
-
+            System.out.println(s1);
+            System.out.println(s2);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
     }
 
+    //分块文件上传minio
+    @Test
+    public void  uploadChunk() throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        for (int i = 0; i < 5; i++) {
+            UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
+                    .bucket("testbucket")
+                    .filename("F:\\chunk\\" + i)
+                    .object("chunk/" + i) //在桶下放在子目录
+                    .build();
+            //上传文件
+            minioClient.uploadObject(uploadObjectArgs);
+            System.out.println("上传分块" + i + "成功");
+        }
+
+    }
+    //调用minio接口合并分块
+    @Test
+    public void  testMerge() throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        // List<ComposeSource> source = new ArrayList<>();
+        // for (int i = 0; i < 5; i++) {
+        //     ComposeSource build = ComposeSource.builder().bucket("testbucket").object("chunk/" + i).build();
+        //     source.add(build);
+        //
+        // }
+        List<ComposeSource> sources = Stream.iterate(0, i -> ++i)
+                .limit(5)
+                .map(i -> ComposeSource.builder()
+                        .bucket("testbucket")
+                        .object("chunk/".concat(Integer.toString(i)))
+                        .build())
+                .collect(Collectors.toList());
+
+        ComposeObjectArgs testbucket = ComposeObjectArgs.builder().bucket("testbucket")
+                .sources(sources)
+                .object("merge.mp4").build();
+        minioClient.composeObject(testbucket);
+    }
+    //删除分块
 }
+
+//TODO minio文件排重 通过md5前两位作目录，而不是用年月日
