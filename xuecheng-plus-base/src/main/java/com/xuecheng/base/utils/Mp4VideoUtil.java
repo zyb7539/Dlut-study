@@ -37,6 +37,8 @@ public class Mp4VideoUtil extends VideoUtil {
         /*
         ffmpeg.exe -i  lucene.avi -c:v libx264 -s 1280x720 -pix_fmt yuv420p -b:a 63k -b:v 753k -r 18 .\lucene.mp4
          */
+        // 该命令的作用是将 lucene.avi 视频文件使用 libx264 编码器进行转码，输出为分辨率为 1280x720、帧率为 18 帧/秒、
+        // 视频比特率为 753k、音频比特率为 63k 的 lucene.mp4 视频文件。
         List<String> commend = new ArrayList<String>();
         //commend.add("D:\\Program Files\\ffmpeg-20180227-fa0c9d6-win64-static\\bin\\ffmpeg.exe");
         commend.add(ffmpeg_path);

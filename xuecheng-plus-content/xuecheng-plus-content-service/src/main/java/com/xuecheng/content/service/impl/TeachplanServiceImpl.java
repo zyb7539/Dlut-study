@@ -1,9 +1,11 @@
 package com.xuecheng.content.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.content.mapper.TeachplanMapper;
 import com.xuecheng.content.mapper.TeachplanMediaMapper;
+import com.xuecheng.content.model.dto.BindTeachPlanMediaDto;
 import com.xuecheng.content.model.dto.SaveTeachplanDto;
 import com.xuecheng.content.model.dto.TeachPlanDto;
 import com.xuecheng.content.model.po.Teachplan;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Service
 public class TeachplanServiceImpl implements TeachplanService {
@@ -21,6 +24,7 @@ public class TeachplanServiceImpl implements TeachplanService {
     TeachplanMapper teachplanMapper;
     @Autowired
     TeachplanMediaMapper teachplanMediaMapper;
+
 
     @Override
     public List<TeachPlanDto> findTeachplanTree(Long courseId) {
@@ -116,6 +120,36 @@ public class TeachplanServiceImpl implements TeachplanService {
         teachplan.setOrderby(swap);
         teachplanMapper.updateById(teachplanOld);
         teachplanMapper.updateById(teachplan);
+    }
+
+    @Transactional
+    @Override
+    public void associationMedia(BindTeachPlanMediaDto bindTeachPlanMediaDto) {
+        //教学计划id
+        Long teachplanId = bindTeachPlanMediaDto.getTeachplanId();
+        Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+        if(teachplan==null){
+            XueChengPlusException.cast("教学计划不存在");
+        }
+        Integer grade = teachplan.getGrade();
+        if(grade!=2){
+            XueChengPlusException.cast("只允许第二级教学计划绑定媒资文件");
+        }
+        //课程id
+        Long courseId = teachplan.getCourseId();
+
+        //先删除原有记录，再添加新纪录
+        LambdaQueryWrapper<TeachplanMedia> wrapper =new LambdaQueryWrapper<>();
+        wrapper.eq(TeachplanMedia::getTeachplanId,bindTeachPlanMediaDto.getTeachplanId());
+        int delete = teachplanMediaMapper.delete(wrapper);
+
+        TeachplanMedia teachplanMedia = new TeachplanMedia();
+        BeanUtils.copyProperties(bindTeachPlanMediaDto,teachplanMedia);
+        teachplanMedia.setCourseId(courseId);
+        teachplanMedia.setMediaFilename(bindTeachPlanMediaDto.getFileName());
+        teachplanMedia.setCreateDate(LocalDateTime.now());
+        teachplanMediaMapper.insert(teachplanMedia);
+
     }
 
     private Integer getTeachPlanCount(SaveTeachplanDto saveTeachplanDto) {

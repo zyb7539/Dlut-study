@@ -9,10 +9,12 @@ import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.base.model.RestResponse;
 import com.xuecheng.media.mapper.MediaFilesMapper;
+import com.xuecheng.media.mapper.MediaProcessMapper;
 import com.xuecheng.media.model.dto.QueryMediaParamsDto;
 import com.xuecheng.media.model.dto.UploadFileParamsDto;
 import com.xuecheng.media.model.dto.UploadFileResultDto;
 import com.xuecheng.media.model.po.MediaFiles;
+import com.xuecheng.media.model.po.MediaProcess;
 import com.xuecheng.media.service.MediaFileService;
 import io.minio.*;
 import io.minio.errors.*;
@@ -50,6 +52,8 @@ public class MediaFileServiceImpl implements MediaFileService {
  MediaFilesMapper mediaFilesMapper;
   @Autowired
  MinioClient minioClient;
+  @Autowired
+ MediaProcessMapper mediaProcessMapper;
 
   @Value("${minio.bucket.files}")
   private String bucketMediaFiles;
@@ -103,7 +107,7 @@ public class MediaFileServiceImpl implements MediaFileService {
   return uploadFileResultDto;
  }
 
- private boolean addMediaFilesToMinIo(String localFilePath,String mimeType,String bucket, String objectName) {
+ public boolean addMediaFilesToMinIo(String localFilePath,String mimeType,String bucket, String objectName) {
   try {
    UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
            .bucket(bucket)
@@ -179,9 +183,30 @@ public class MediaFileServiceImpl implements MediaFileService {
    log.debug("保存文件信息到数据库成功,{}",mediaFiles.toString());
 
   }
+  // 记录待处理任务
+  addWaitingTask(mediaFiles);
+
   return mediaFiles;
 
  }
+
+ // 记录待处理任务
+ private void addWaitingTask(MediaFiles mediaFiles){
+  String filename = mediaFiles.getFilename();
+  //文件扩展名
+  String extension = filename.substring(filename.lastIndexOf("."));
+  String mimeType = getMimeType(extension);
+  if("video/x-msvideo".equals(mimeType)){//是avi视频写入待处理任务表
+   MediaProcess mediaProcess = new MediaProcess();
+   BeanUtils.copyProperties(mediaFiles,mediaProcess);
+   mediaProcess.setStatus("1");
+   mediaProcess.setFailCount(0); //默认失败值
+   mediaProcess.setUrl(null);
+   mediaProcessMapper.insert(mediaProcess);
+  }
+
+ }
+
 
  @Override
  public RestResponse<Boolean> checkFile(String fileMd5) {
@@ -286,6 +311,7 @@ public class MediaFileServiceImpl implements MediaFileService {
   }
   //清理分块文件
  clearChunkFiles(chunkFileFolderPath,chunkTotal);
+
   return RestResponse.success(true);
  }
 
@@ -370,4 +396,3 @@ public class MediaFileServiceImpl implements MediaFileService {
 
 
 }}
-//TODO 非事务方法调用事务方法，事务失效？

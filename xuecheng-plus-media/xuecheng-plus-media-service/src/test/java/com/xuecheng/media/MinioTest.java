@@ -6,6 +6,7 @@ import io.minio.*;
 import io.minio.errors.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -113,5 +114,3 @@ public class MinioTest {
     }
     //删除分块
 }
-
-//TODO minio文件排重 通过md5前两位作目录，而不是用年月日
