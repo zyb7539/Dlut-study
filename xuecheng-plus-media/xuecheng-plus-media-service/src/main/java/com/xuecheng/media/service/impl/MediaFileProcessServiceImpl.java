@@ -47,7 +47,7 @@ public class MediaFileProcessServiceImpl implements MediaFileProcessService {
             mediaProcess.setStatus("3");
             mediaProcess.setFailCount(mediaProcess.getFailCount() + 1);
             mediaProcess.setErrormsg(errorMsg);
-            mediaProcessMapper.update(mediaProcess,null);
+            mediaProcessMapper.updateById(mediaProcess);
 
             return;
         }
@@ -60,7 +60,7 @@ public class MediaFileProcessServiceImpl implements MediaFileProcessService {
         mediaProcess.setStatus("2");
         mediaProcess.setFinishDate(LocalDateTime.now());
         mediaProcess.setUrl(url);
-        mediaProcessMapper.update(mediaProcess,null);
+        mediaProcessMapper.updateById(mediaProcess);
 
         MediaProcessHistory mediaProcessHistory = new MediaProcessHistory();
         BeanUtils.copyProperties(mediaProcess,mediaProcessHistory);
@@ -68,5 +68,6 @@ public class MediaFileProcessServiceImpl implements MediaFileProcessService {
         // 删除当前任务
         mediaProcessMapper.deleteById(taskId);
     }
-
+// TODO 任务补偿机制
+// TODO 分块文件清理问题
 }

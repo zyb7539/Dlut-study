@@ -127,6 +127,12 @@ public class MediaFileServiceImpl implements MediaFileService {
   }
  }
 
+ @Override
+ public MediaFiles getFileById(String mediaId) {
+  MediaFiles mediaFiles = mediaFilesMapper.selectById(mediaId);
+  return mediaFiles;
+ }
+
  // 根据扩展名获得mimeType
  private  String getMimeType(String extension) {
   if(extension == null){

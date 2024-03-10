@@ -32,4 +32,11 @@ public interface TeachplanService {
     void moveTeachplan(String move, Long id);
 
     public void associationMedia(BindTeachPlanMediaDto bindTeachPlanMediaDto);
+
+    /**
+     * 删除媒资绑定课程计划
+     * @param mediaId
+     * @param teachPlanId
+     * */
+    void deleteAssociationMedia(Long teachPlanId, String mediaId);
 }

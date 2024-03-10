@@ -31,7 +31,6 @@ public class VideoTask {
     MediaFileService mediaFileService;
 
 
-    //TODO 重点代码
     @XxlJob("VideoJobHandler")
     public void shardingJobHandler() throws Exception {
 
@@ -51,7 +50,7 @@ public class VideoTask {
         //创建线程池执行
         ExecutorService executorService = Executors.newFixedThreadPool(size);
 
-        //使用计数器
+        //使用计数器,保证是所有线程都执行完，该方法才结束.
         CountDownLatch countDownLatch = new CountDownLatch(size);
         mediaProcessList.forEach(mediaProcess -> {
             //将任务加入线程池
