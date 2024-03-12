@@ -1,0 +1,3 @@
+### 搜索账户
+GET {{auth_host}}/auth/user/52
+Content-Type: application/json

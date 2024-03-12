@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 公开查询接口
  * */
 @RestController
-@RequestMapping("/open")    //TODO RequestMapping的路径与配置文件中的优先级
+@RequestMapping("/open")
 public class CourseOpenController {
     //根据课程id查询课程信息
     @Autowired
@@ -29,5 +29,6 @@ public class CourseOpenController {
         CoursePreviewDto coursePreviewInfo = coursePublishService.getCoursePreviewInfo(courseId);
         return coursePreviewInfo;
     }
+    //TODO 师资展示
 
 }

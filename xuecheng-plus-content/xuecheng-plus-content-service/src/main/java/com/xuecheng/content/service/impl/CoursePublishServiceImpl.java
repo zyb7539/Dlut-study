@@ -3,6 +3,8 @@ package com.xuecheng.content.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.xuecheng.base.exception.CommonError;
 import com.xuecheng.base.exception.XueChengPlusException;
+import com.xuecheng.content.config.MultipartSupportConfig;
+import com.xuecheng.content.feignclient.MediaServiceClient;
 import com.xuecheng.content.mapper.CourseBaseMapper;
 import com.xuecheng.content.mapper.CourseMarketMapper;
 import com.xuecheng.content.mapper.CoursePublishMapper;
@@ -17,15 +19,26 @@ import com.xuecheng.content.service.CourseTeacherService;
 import com.xuecheng.content.service.TeachplanService;
 import com.xuecheng.messagesdk.model.po.MqMessage;
 import com.xuecheng.messagesdk.service.MqMessageService;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
-//TODO 师资
 @Service
+@Slf4j
 public class CoursePublishServiceImpl implements CoursePublishService {
     @Autowired
     CourseBaseInfoService courseBaseInfoService;
@@ -43,6 +56,8 @@ public class CoursePublishServiceImpl implements CoursePublishService {
     MqMessageService mqMessageService;
     @Autowired
     CourseTeacherService courseTeacherService;
+    @Autowired
+    MediaServiceClient mediaServiceClient;
 
     @Override
     public CoursePreviewDto getCoursePreviewInfo(Long courseId) {
@@ -137,15 +152,66 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         }else {
             coursePublishMapper.updateById(coursePublish);
         }
-        // 修改课程基本信息表
-        CourseBase courseBase = courseBaseMapper.selectById(courseId);
-        //已发布
-        courseBase.setStatus("203002");
-        courseBaseMapper.updateById(courseBase);
+        // // 修改课程基本信息表
+        // CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        // //已发布
+        // courseBase.setStatus("203002");
+        // courseBaseMapper.updateById(courseBase);
         //像课程消息表写数据
         saveCoursePublishMessage(courseId);
         //删除预发布表数据
         coursePublishPreMapper.deleteById(courseId);
+    }
+
+    @Override
+    public File generateCourseHtml(Long courseId) {
+        Configuration configuration = new Configuration(Configuration.getVersion());
+        // 最终的静态文件
+        File htmlFile = null;
+        //得到模板
+        try {
+            //拿到classPath
+            String path = this.getClass().getResource("/").getPath();
+            System.out.println(path);
+            configuration.setDirectoryForTemplateLoading(new File(path + "/templates/"));
+            // 指定编码
+            configuration.setDefaultEncoding("utf-8");
+            Template template = configuration.getTemplate("course_template.ftl");
+            CoursePreviewDto coursePreviewInfo = this.getCoursePreviewInfo(courseId);
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("model",coursePreviewInfo);
+            String html = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
+
+            //使用流将html写入文件
+            InputStream inputStream = IOUtils.toInputStream(html, "utf-8");
+            htmlFile = File.createTempFile("coursepublish",".html");
+            FileOutputStream fileOutputStream = new FileOutputStream(htmlFile);
+
+            IOUtils.copy(inputStream,fileOutputStream);
+        }catch (Exception e){
+            log.error("页面静态化出现问题，课程id:{}",courseId,e);
+            e.printStackTrace();
+        }
+
+        return htmlFile;
+    }
+
+    @Override
+    public void uploadCourseHtml(Long courseId, File file) {
+        try {
+            // 将file类型转为Multipart
+            MultipartFile multipartFile = MultipartSupportConfig.getMultipartFile(file);
+
+            String upload = mediaServiceClient.upload(multipartFile, "course/"+courseId +".html");
+            if(upload == null){
+                log.debug("远程调用走降级逻辑，得到结果为空，课程id：{}",courseId);
+                XueChengPlusException.cast("上传静态文件中存在异常");
+            }
+        }catch (Exception e){
+               e.printStackTrace();
+            XueChengPlusException.cast("上传静态文件中存在异常");
+        }
+
     }
 
     /**

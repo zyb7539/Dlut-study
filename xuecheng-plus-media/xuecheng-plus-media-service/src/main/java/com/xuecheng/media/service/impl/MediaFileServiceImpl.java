@@ -83,7 +83,7 @@ public class MediaFileServiceImpl implements MediaFileService {
  }
 
  @Override
- public UploadFileResultDto uploadFile(Long companyId, UploadFileParamsDto uploadFileParamsDto, String localFilePath) {
+ public UploadFileResultDto uploadFile(Long companyId, UploadFileParamsDto uploadFileParamsDto, String localFilePath,String objectName) {
   String filename = uploadFileParamsDto.getFilename();
   //得到扩展名
   String extension = filename.substring(filename.lastIndexOf("."));
@@ -92,7 +92,9 @@ public class MediaFileServiceImpl implements MediaFileService {
   String defaultFolderPath = getDefaultFolderPath();
   //文件的md5值
   String fileMd5 = getFileMd5(new File(localFilePath));
-  String objectName  = defaultFolderPath + fileMd5 + extension;
+  if(StringUtils.isEmpty(objectName)){
+    objectName  = defaultFolderPath + fileMd5 + extension;
+  }
   boolean result = addMediaFilesToMinIo(localFilePath, mimeType, bucketMediaFiles, objectName);
   if(!result){
    XueChengPlusException.cast("上传文件失败");
