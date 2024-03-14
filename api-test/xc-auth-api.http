@@ -1,3 +1,6 @@
 ### 搜索账户
 GET {{auth_host}}/auth/user/52
 Content-Type: application/json
+
+###
+POST {{auth_host}}/auth/oauth/token?client_id=XcWebApp&client_secret=XcWebApp&grant_type=authorization_code&code=SKxUxM&redirect_uri=http://www.51xuecheng.cn

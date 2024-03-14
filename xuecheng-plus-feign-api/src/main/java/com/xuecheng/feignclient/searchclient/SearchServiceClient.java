@@ -1,5 +1,6 @@
-package com.xuecheng.content.feignclient;
+package com.xuecheng.feignclient.searchclient;
 
+import com.xuecheng.po.CourseIndex;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

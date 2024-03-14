@@ -1,5 +1,6 @@
-package com.xuecheng.content.feignclient;
+package com.xuecheng.feignclient.meidaclient;
 
+import com.xuecheng.feignclient.meidaclient.MediaServiceClient;
 import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

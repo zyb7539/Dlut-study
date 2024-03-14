@@ -1,15 +1,16 @@
 package com.xuecheng.content.service.jobhandler;
 
 import com.xuecheng.base.exception.XueChengPlusException;
-import com.xuecheng.content.feignclient.CourseIndex;
-import com.xuecheng.content.feignclient.SearchServiceClient;
+
 import com.xuecheng.content.mapper.CoursePublishMapper;
 import com.xuecheng.content.model.dto.CoursePreviewDto;
 import com.xuecheng.content.model.po.CoursePublish;
 import com.xuecheng.content.service.CoursePublishService;
+import com.xuecheng.feignclient.searchclient.SearchServiceClient;
 import com.xuecheng.messagesdk.model.po.MqMessage;
 import com.xuecheng.messagesdk.service.MessageProcessAbstract;
 import com.xuecheng.messagesdk.service.MqMessageService;
+import com.xuecheng.po.CourseIndex;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;

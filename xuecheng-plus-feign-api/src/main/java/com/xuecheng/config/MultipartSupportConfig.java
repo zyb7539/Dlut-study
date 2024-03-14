@@ -1,4 +1,4 @@
-package com.xuecheng.content.config;
+package com.xuecheng.config;
 
 import feign.codec.Encoder;
 import feign.form.spring.SpringFormEncoder;
@@ -24,7 +24,7 @@ import java.io.OutputStream;
 /**
  * @author Mr.M
  * @version 1.0
- * @description TODO
+ * @description feign使用Multipart作为参数配置
  * @date 2022/10/15 22:13
  */
 @Configuration

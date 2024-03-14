@@ -1,5 +1,6 @@
-package com.xuecheng.content.feignclient;
+package com.xuecheng.feignclient.searchclient;
 
+import com.xuecheng.po.CourseIndex;
 import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

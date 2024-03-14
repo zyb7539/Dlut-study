@@ -11,6 +11,9 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+
 /**
  * @description 课程搜索接口
  * @author Mr.M
@@ -31,6 +34,6 @@ public class CourseSearchController {
  public SearchPageResultDto<CourseIndex> list(PageParams pageParams, SearchCourseParamDto searchCourseParamDto){
 
     return courseSearchService.queryCoursePubIndex(pageParams,searchCourseParamDto);
-   
+
   }
 }

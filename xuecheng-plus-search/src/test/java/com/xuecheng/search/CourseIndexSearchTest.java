@@ -2,11 +2,17 @@ package com.xuecheng.search;
 
 import com.xuecheng.search.po.CourseIndex;
 import com.xuecheng.search.service.IndexService;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 /**
@@ -17,70 +23,79 @@ import java.time.LocalDateTime;
  */
  @SpringBootTest
 public class CourseIndexSearchTest {
+    public static final String MAPPING_TEMPLATE = "{\n" +
+            "  \"mappings\": {\n" +
+            "    \"properties\": {\n" +
+            "      \"id\": {\n" +
+            "        \"type\": \"keyword\"\n" +
+            "      },\n" +
+            "      \"name\":{\n" +
+            "        \"type\": \"text\",\n" +
+            "        \"analyzer\": \"ik_max_word\",\n" +
+            "        \"copy_to\": \"all\"\n" +
+            "      },\n" +
+            "      \"address\":{\n" +
+            "        \"type\": \"keyword\",\n" +
+            "        \"index\": false\n" +
+            "      },\n" +
+            "      \"price\":{\n" +
+            "        \"type\": \"integer\"\n" +
+            "      },\n" +
+            "      \"score\":{\n" +
+            "        \"type\": \"integer\"\n" +
+            "      },\n" +
+            "      \"brand\":{\n" +
+            "        \"type\": \"keyword\",\n" +
+            "        \"copy_to\": \"all\"\n" +
+            "      },\n" +
+            "      \"city\":{\n" +
+            "        \"type\": \"keyword\",\n" +
+            "        \"copy_to\": \"all\"\n" +
+            "      },\n" +
+            "      \"starName\":{\n" +
+            "        \"type\": \"keyword\"\n" +
+            "      },\n" +
+            "      \"business\":{\n" +
+            "        \"type\": \"keyword\"\n" +
+            "      },\n" +
+            "      \"location\":{\n" +
+            "        \"type\": \"geo_point\"\n" +
+            "      },\n" +
+            "      \"pic\":{\n" +
+            "        \"type\": \"keyword\",\n" +
+            "        \"index\": false\n" +
+            "      },\n" +
+            "      \"all\":{\n" +
+            "        \"type\": \"text\",\n" +
+            "        \"analyzer\": \"ik_max_word\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
 
 
   @Value("${elasticsearch.course.index}")
   private String courseIndexStore;
+  @Autowired
+  RestHighLevelClient client;
 
   @Autowired
   IndexService courseIndexService;
 
   @Test
- public void test_addindex(){
+ public void test_addindex() throws IOException {
+      CreateIndexRequest request = new CreateIndexRequest("test_hotel");
+      request.source(MAPPING_TEMPLATE, XContentType.JSON);
+      CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
+      System.out.println(createIndexResponse);
+      System.out.println(createIndexResponse.index());
 
-   CourseIndex courseIndex = new CourseIndex();
-   courseIndex.setId(101L);
-   courseIndex.setName("Java编程思想");
-   courseIndex.setDescription("《Java编程思想》是2007年6月1日机械工业出版社出版的图书，作者是埃克尔，译者是陈昊鹏。主要内容本书赢得了全球程序员的广泛赞誉，即使是最晦涩的概念，在Bruce Eckel的文字亲和力和小而直接的编程示例面前也会化解于无形。从Java的基础语法到最高级特性（深入的面向对象概念、多线程、自动项目构建、单元测试和调试等），本书都能逐步指导你轻松掌握。从本书获得的各项大奖以及来自世界各地的读者评论中，不难看出这是一本经典之作");
-   courseIndex.setCompanyId(100000L);
-   courseIndex.setCompanyName("北京黑马程序");
-   courseIndex.setCharge("10011");
-   courseIndex.setMt("1-1");
-   courseIndex.setSt("1-1-1");
-   courseIndex.setMtName("后端编程");
-   courseIndex.setStName("Java语言");
-   courseIndex.setGrade("20202");
-   courseIndex.setCreateDate(LocalDateTime.now());
-   courseIndex.setPic("http://file.xuecheng-plus.com/mediafiles/ssss.jpg");
-   courseIndex.setPrice(100f);
-   courseIndex.setOriginalPrice(200f);
-   courseIndex.setRemark("没有备注");
-   courseIndex.setStatus("1");
-   courseIndex.setTags("没有标签");
-   courseIndex.setValidDays(222);
-   courseIndex.setTeachmode("40020");
-
-   Boolean result = courseIndexService.addCourseIndex(courseIndexStore,"101",courseIndex);
-   System.out.println(result);
 
   }
   @Test
  public void test_updateIndex(){
 
-   CourseIndex courseIndex = new CourseIndex();
-   courseIndex.setId(101L);
-   courseIndex.setName("Java编程思想");
-   courseIndex.setDescription("《Java编程思想》是2007年6月1日机械工业出版社出版的图书，作者是埃克尔，译者是陈昊鹏。主要内容本书赢得了全球程序员的广泛赞誉，即使是最晦涩的概念，在Bruce Eckel的文字亲和力和小而直接的编程示例面前也会化解于无形。从Java的基础语法到最高级特性（深入的面向对象概念、多线程、自动项目构建、单元测试和调试等），本书都能逐步指导你轻松掌握。从本书获得的各项大奖以及来自世界各地的读者评论中，不难看出这是一本经典之作");
-   courseIndex.setCompanyId(100000L);
-   courseIndex.setCompanyName("北京黑马程序");
-   courseIndex.setCharge("10011");
-   courseIndex.setMt("1-1");
-   courseIndex.setSt("1-1-1");
-   courseIndex.setMtName("后端编程");
-   courseIndex.setStName("Java语言");
-   courseIndex.setGrade("20202");
-   courseIndex.setCreateDate(LocalDateTime.now());
-   courseIndex.setPic("http://file.xuecheng-plus.com/mediafiles/ssss.jpg");
-   courseIndex.setPrice(100f);
-   courseIndex.setOriginalPrice(200f);
-   courseIndex.setRemark("没有备注");
-   courseIndex.setStatus("1");
-   courseIndex.setTags("没有标签");
-   courseIndex.setValidDays(222);
-   courseIndex.setTeachmode("40020");
 
-   Boolean result = courseIndexService.updateCourseIndex(courseIndexStore,"101",courseIndex);
-   System.out.println(result);
 
   }
 }

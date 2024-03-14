@@ -1,4 +1,5 @@
-package com.xuecheng.content.feignclient;
+package com.xuecheng.po;
+
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;

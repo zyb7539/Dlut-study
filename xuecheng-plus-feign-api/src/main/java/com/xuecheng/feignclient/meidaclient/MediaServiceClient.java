@@ -1,6 +1,7 @@
-package com.xuecheng.content.feignclient;
+package com.xuecheng.feignclient.meidaclient;
 
-import com.xuecheng.content.config.MultipartSupportConfig;
+
+import com.xuecheng.config.MultipartSupportConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
