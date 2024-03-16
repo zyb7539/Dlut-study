@@ -1,10 +1,10 @@
-package com.xuecheng;
+package com.xuecheng.checkcode;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class XuechengPlusFeignApiApplicationTests {
+class XuechengPlusCheckcodeApplicationTests {
 
     @Test
     void contextLoads() {

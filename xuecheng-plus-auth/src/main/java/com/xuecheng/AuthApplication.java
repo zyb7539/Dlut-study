@@ -16,10 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
+@EnableFeignClients(basePackages = {"com.xuecheng.feignclient.checkcodeclient"})
 public class AuthApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(AuthApplication.class, args);
+    }
+    // 和第三方交互
+    @Bean
+    RestTemplate restTemplate(){
+        RestTemplate restTemplate = new RestTemplate(new OkHttp3ClientHttpRequestFactory());
+        return  restTemplate;
     }
 
 }

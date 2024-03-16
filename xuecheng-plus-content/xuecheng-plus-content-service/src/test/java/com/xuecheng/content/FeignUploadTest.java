@@ -1,7 +1,8 @@
 package com.xuecheng.content;
 
-import com.xuecheng.content.config.MultipartSupportConfig;
-import com.xuecheng.content.feignclient.MediaServiceClient;
+import com.xuecheng.config.MultipartSupportConfig;
+
+import com.xuecheng.feignclient.meidaclient.MediaServiceClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
