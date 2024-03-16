@@ -47,12 +47,16 @@ public class GlobalExceptionHandler {
         RestErrorResponse errorResponse = new RestErrorResponse(errMessage);
         return errorResponse;
     }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public RestErrorResponse exception(Exception e){
         String errMessage = e.getMessage();
         //记录日常
         log.error("系统日常：{}",errMessage,e);
+        if(e.getMessage().equals("不允许访问")){
+            return new RestErrorResponse("你没有权限访问此资源");
+        }
         RestErrorResponse errorResponse = new RestErrorResponse(CommonError.UNKOWN_ERROR.getErrMessage());
         return errorResponse;
     }
