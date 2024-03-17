@@ -152,11 +152,12 @@ public class CoursePublishServiceImpl implements CoursePublishService {
         }else {
             coursePublishMapper.updateById(coursePublish);
         }
-        // // 修改课程基本信息表
-        // CourseBase courseBase = courseBaseMapper.selectById(courseId);
-        // //已发布
-        // courseBase.setStatus("203002");
-        // courseBaseMapper.updateById(courseBase);
+        // 修改课程基本信息表
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        //已发布
+        courseBase.setStatus("203002");
+        courseBaseMapper.updateById(courseBase);
+
         //像课程消息表写数据
         saveCoursePublishMessage(courseId);
         //删除预发布表数据
@@ -212,6 +213,12 @@ public class CoursePublishServiceImpl implements CoursePublishService {
             XueChengPlusException.cast("上传静态文件中存在异常");
         }
 
+    }
+
+    @Override
+    public CoursePublish getCoursePublish(Long courseId) {
+        CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+        return coursePublish;
     }
 
     /**

@@ -33,6 +33,7 @@ public class MqMessageServiceImpl extends ServiceImpl<MqMessageMapper, MqMessage
     MqMessageHistoryMapper mqMessageHistoryMapper;
 
 
+
     @Override
     public List<MqMessage> getMessageList(int shardIndex, int shardTotal, String messageType,int count) {
         return mqMessageMapper.selectListByShardIndex(shardTotal,shardIndex,messageType,count);
@@ -70,6 +71,8 @@ public class MqMessageServiceImpl extends ServiceImpl<MqMessageMapper, MqMessage
             mqMessageHistoryMapper.insert(mqMessageHistory);
             //删除消息表
             mqMessageMapper.deleteById(id);
+
+
             return 1;
         }
         return 0;

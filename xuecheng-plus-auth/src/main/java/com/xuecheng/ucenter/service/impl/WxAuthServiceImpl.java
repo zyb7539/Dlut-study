@@ -130,7 +130,6 @@ public class WxAuthServiceImpl implements AuthService, WxAuthService {
         //查询用户信息
         XcUser xcUser = xcUserMapper.selectOne(new LambdaQueryWrapper<XcUser>().eq(XcUser::getWxUnionid, unionid));
         if(xcUser != null){
-            // TODO 修改
             return xcUser;
         }
          //向数据库新增记录
