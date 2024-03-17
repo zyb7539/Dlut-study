@@ -16,6 +16,7 @@ import com.xuecheng.learning.model.po.XcChooseCourse;
 import com.xuecheng.learning.model.po.XcCourseTables;
 import com.xuecheng.learning.service.MyCourseTablesService;
 import com.xuecheng.po.CoursePublish;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +91,31 @@ public class MyCourseTablesServiceImpl implements MyCourseTablesService {
         int size = params.getSize();
         LambdaQueryWrapper<XcCourseTables> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(XcCourseTables::getUserId,userId);
-        // params.get
-        // queryWrapper.orderBy();
+        // 收费
+        String courseType = params.getCourseType();
+        queryWrapper.eq(StringUtils.isNotEmpty(courseType),XcCourseTables::getCourseType,courseType);
+        String expiresType = params.getExpiresType();
+       if (StringUtils.isNotEmpty(expiresType)){
+           if("1".equals(expiresType)){
+               // 即将过期,默认还剩30天为即将过期
+               LocalDateTime time = LocalDateTime.now().plusDays(30);
+               queryWrapper.gt(XcCourseTables::getValidtimeEnd, LocalDateTime.now()).lt(XcCourseTables::getValidtimeEnd,time);
+           }else {
+                //已经过期
+               queryWrapper.lt(XcCourseTables::getValidtimeEnd, LocalDateTime.now());
+           }
+       }
+        //排序
+        String sortType = params.getSortType();
+       if(StringUtils.isNotEmpty(sortType)){
+           if("1".equals(sortType)){
+                //学习时间  当前时间-加入时间
+                queryWrapper.orderByAsc(XcCourseTables::getCreateDate);
+           }else {
+                //加入时间
+               queryWrapper.orderByDesc(XcCourseTables::getCreateDate);
+           }
+       }
 
         IPage<XcCourseTables> page = new Page<>(pageNo,size);
         IPage<XcCourseTables> xcCourseTablesIPage = xcCourseTablesMapper.selectPage(page, queryWrapper);

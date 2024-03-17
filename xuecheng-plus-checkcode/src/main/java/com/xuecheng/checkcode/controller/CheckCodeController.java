@@ -45,4 +45,11 @@ public class CheckCodeController {
         Boolean isSuccess = picCheckCodeService.verify(key,code);
         return isSuccess;
     }
+
+    // @PostMapping(value = "/phone")
+    // public CheckCodeResultDto generateCheckCode(CheckCodeParamsDto checkCodeParamsDto){
+    //     checkCodeParamsDto.setCheckCodeType("sms");
+    //    return picCheckCodeService.generate(checkCodeParamsDto);
+    // }
+    //todo:验证码
 }
